@@ -45,11 +45,12 @@ async function bootstrap() {
   const corsOrigin = configService.get<string>('CORS_ORIGIN');
   const appUrl = configService.get<string>('APP_URL');
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.info(`🚀 API Chronos running on ${appUrl}/api/v1`);
   console.info(`📦 Environment: ${nodeEnv}`);
   console.info(`🔗 CORS enabled for: ${corsOrigin}`);
+  console.info(`🔗 APP listening on ${port}`);
 }
 
 bootstrap();
