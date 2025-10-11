@@ -18,7 +18,7 @@ export class FilesService {
       }
 
       return fileRecord;
-    } catch (error) {
+    } catch {
       throw new NotFoundException('File not found');
     }
   }

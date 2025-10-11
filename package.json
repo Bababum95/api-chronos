@@ -15,7 +15,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "clean": "rm -rf dist node_modules",
-    "copy:users": "ts-node -r tsconfig-paths/register ./scripts/copy-users.ts"
+    "copy": "ts-node -r tsconfig-paths/register ./scripts/copy-heartbeats.ts",
+    "reha": "ts-node -r tsconfig-paths/register ./scripts/rebuild-hourly-activities.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",

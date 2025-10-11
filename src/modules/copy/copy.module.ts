@@ -2,16 +2,26 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { UserSchema } from '@/schemas/user.schema';
+import { FileSchema } from '@/schemas/file.schema';
+import { HeartbeatSchema } from '@/schemas/heartbeat.schema';
 
 import { CopyService } from './copy.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'NewUser', schema: UserSchema, collection: 'users' }]),
+    MongooseModule.forFeature([
+      { name: 'NewUser', schema: UserSchema, collection: 'users' },
+      { name: 'NewFile', schema: FileSchema, collection: 'files' },
+      { name: 'NewHeartbeat', schema: HeartbeatSchema, collection: 'heartbeats' },
+    ]),
 
-    // sourceConnection
+    // Source Database
     MongooseModule.forFeature(
-      [{ name: 'OldUser', schema: UserSchema, collection: 'users' }],
+      [
+        { name: 'OldUser', schema: UserSchema, collection: 'users' },
+        { name: 'OldFile', schema: FileSchema, collection: 'files' },
+        { name: 'OldHeartbeat', schema: HeartbeatSchema, collection: 'heartbeats' },
+      ],
       'sourceConnection'
     ),
   ],

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { HourlyActivity, HourlyActivityDocument } from '../../schemas/hourly-activity.schema';
 import { SummariesQuery } from '../../common/dto/validation-schemas';
@@ -47,7 +47,8 @@ export class SummariesService {
   ) {}
 
   async getTotalSummaries(userId: string) {
-    const data = await this.hourlyActivityModel.find({ user: userId });
+    const userObjectId = new Types.ObjectId(userId);
+    const data = await this.hourlyActivityModel.find({ user: userObjectId });
     const totalTime = data.reduce((acc, curr) => acc + curr.time_spent, 0);
 
     return createSuccessResponse('Summaries fetched successfully', { totalTime });
@@ -58,10 +59,11 @@ export class SummariesService {
     const endSec = Number(query.end);
     const range = endSec - startSec;
     const interval = Number(intervalParam ?? (range < DAY ? HOUR : DAY));
+    const userObjectId = new Types.ObjectId(userId);
 
     const data = await this.hourlyActivityModel
       .find({
-        user: userId,
+        user: userObjectId,
         timestamp: { $gte: startSec, $lte: endSec },
       })
       .select('alternate_project git_branch project_folder time_spent timestamp')

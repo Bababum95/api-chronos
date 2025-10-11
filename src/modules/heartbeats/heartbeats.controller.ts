@@ -1,9 +1,9 @@
 import { Controller, Post, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 
-import { ApiKeyGuard } from '../../common/guards/api-key.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { parseOrThrow } from '../../common/utils/validation.utils';
-import { HeartbeatsSchema } from '../../common/dto/validation-schemas';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { parseOrThrow } from '@/common/utils/validation.utils';
+import { HeartbeatsSchema } from '@/common/dto/validation-schemas';
 
 import { HeartbeatsService } from './heartbeats.service';
 

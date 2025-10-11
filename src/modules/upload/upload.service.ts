@@ -1,16 +1,18 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 import { Model } from 'mongoose';
 
-import { User, UserDocument } from '../../schemas/user.schema';
-import { File, FileDocument } from '../../schemas/file.schema';
-import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '../../config/constants';
+import { User, UserDocument } from '@/schemas/user.schema';
+import { File, FileDocument } from '@/schemas/file.schema';
+import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/config/constants';
 
 @Injectable()
 export class UploadService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(File.name) private fileModel: Model<FileDocument>
+    @InjectModel(File.name) private fileModel: Model<FileDocument>,
+    private readonly configService: ConfigService
   ) {}
 
   async uploadAvatar(userId: string, file: Express.Multer.File) {
@@ -43,7 +45,8 @@ export class UploadService {
     await fileRecord.save();
 
     // Update user's avatar URL to point to file endpoint
-    const avatarUrl = `/api/v1/files/${fileRecord._id}`;
+    const appUrl = this.configService.get<string>('APP_URL');
+    const avatarUrl = `${appUrl}/api/v1/files/${fileRecord._id}`;
     const user = await this.userModel.findById(userId);
 
     if (user) {

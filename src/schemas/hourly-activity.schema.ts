@@ -1,10 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Model, Types } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 
-import { HEARTBEAT_INTERVAL_SEC, HOUR } from '../config/constants';
-import { calculateActiveTime } from '../common/utils/heartbeat.utils';
-import { toHourEnd, toHourStart } from '../common/utils/time.utils';
+import { HEARTBEAT_INTERVAL_SEC, HOUR } from '@/config/constants';
+import { calculateActiveTime } from '@/common/utils/heartbeat.utils';
+import { toHourEnd, toHourStart } from '@/common/utils/time.utils';
 
 export type HourlyActivityDocument = HydratedDocument<HourlyActivity>;
 

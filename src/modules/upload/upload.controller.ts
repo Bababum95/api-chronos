@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { ApiKeyGuard } from '../../common/guards/api-key.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 import { UploadService } from './upload.service';
 
