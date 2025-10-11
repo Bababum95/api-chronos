@@ -1,11 +1,11 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { User, UserDocument } from '@/schemas/user.schema';
 import { File, FileDocument } from '@/schemas/file.schema';
-import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES } from '@/config/constants';
+import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES, API_PREFIX } from '@/config/constants';
 
 @Injectable()
 export class UploadService {
@@ -32,9 +32,11 @@ export class UploadService {
       throw new BadRequestException('File too large. Maximum size is 5MB.');
     }
 
+    const userObjectId = new Types.ObjectId(userId);
+
     // Create file record in database
     const fileRecord = new this.fileModel({
-      user: userId,
+      user: userObjectId,
       originalName: file.originalname,
       mimeType: file.mimetype,
       size: file.size,
@@ -46,11 +48,11 @@ export class UploadService {
 
     // Update user's avatar URL to point to file endpoint
     const appUrl = this.configService.get<string>('APP_URL');
-    const avatarUrl = `${appUrl}/api/v1/files/${fileRecord._id}`;
-    const user = await this.userModel.findById(userId);
+    const avatarUrl = `${appUrl}/${API_PREFIX}/files/${fileRecord._id}`;
+    const user = await this.userModel.findById(userObjectId);
 
     if (user) {
-      await this.userModel.findByIdAndUpdate(userId, {
+      await this.userModel.findByIdAndUpdate(userObjectId, {
         avatarUrl,
         gallery: [...(user.gallery || []), avatarUrl],
       });
@@ -63,8 +65,10 @@ export class UploadService {
   }
 
   async deleteAvatar(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+
     const fileRecord = await this.fileModel.findOne({
-      user: userId,
+      user: userObjectId,
     });
 
     if (!fileRecord) {
@@ -75,7 +79,7 @@ export class UploadService {
     await this.fileModel.findByIdAndDelete(fileRecord._id);
 
     // Remove avatar URL from user
-    await this.userModel.findByIdAndUpdate(userId, {
+    await this.userModel.findByIdAndUpdate(userObjectId, {
       $unset: { avatarUrl: 1 },
     });
 

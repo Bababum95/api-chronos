@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
+import { API_PREFIX } from './config/constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,7 +30,7 @@ async function bootstrap() {
   });
 
   // Set global prefix
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix(API_PREFIX);
 
   // Enable validation pipe globally
   app.useGlobalPipes(
@@ -47,7 +48,7 @@ async function bootstrap() {
 
   await app.listen(port, '0.0.0.0');
 
-  console.info(`🚀 API Chronos running on ${appUrl}/api/v1`);
+  console.info(`🚀 API Chronos running on ${appUrl}/${API_PREFIX}`);
   console.info(`📦 Environment: ${nodeEnv}`);
   console.info(`🔗 CORS enabled for: ${corsOrigin}`);
   console.info(`🔗 APP listening on ${port}`);

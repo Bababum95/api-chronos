@@ -1,4 +1,5 @@
 export const HEARTBEAT_INTERVAL_SEC = 120;
+export const API_PREFIX = 'api/v1';
 
 export const HOUR = 3600;
 export const DAY = 24 * HOUR;
