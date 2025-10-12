@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Types } from 'mongoose';
+import { Document, HydratedDocument, Model, Types } from 'mongoose';
 
 export type HeartbeatDocument = HydratedDocument<Heartbeat>;
+export type HeartbeatModel = Model<HeartbeatDocument>;
 
 @Schema({ timestamps: true })
 export class Heartbeat extends Document {

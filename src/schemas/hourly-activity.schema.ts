@@ -4,6 +4,8 @@ import { Document, HydratedDocument, Model, Types } from 'mongoose';
 import { HEARTBEAT_INTERVAL_SEC, HOUR } from '@/config/constants';
 import { calculateActiveTime } from '@/common/utils/heartbeat.utils';
 import { toHourEnd, toHourStart } from '@/common/utils/time.utils';
+import { ProjectModel } from '@/schemas/project.schema';
+import { HeartbeatModel } from '@/schemas/heartbeat.schema';
 
 export type HourlyActivityDocument = HydratedDocument<HourlyActivity>;
 
@@ -60,8 +62,8 @@ export interface HourlyActivityModel extends Model<HourlyActivityDocument> {
     userId: Types.ObjectId,
     start: number,
     end: number,
-    heartbeatModel: Model<any>,
-    projectModel: Model<any>
+    heartbeatModel: HeartbeatModel,
+    projectModel: ProjectModel
   ) => Promise<void>;
 }
 
@@ -69,8 +71,8 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
   userId: Types.ObjectId,
   start: number,
   end: number,
-  heartbeatModel: Model<any>,
-  projectModel: Model<any>
+  heartbeatModel: HeartbeatModel,
+  projectModel: ProjectModel
 ) {
   const startTimestamp = toHourStart(start);
   const endTimestamp = toHourEnd(end);
@@ -88,17 +90,18 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
 
   const groups = new Map();
   for (const hb of heartbeats) {
-    if (!projectCache.has(hb.project_folder)) {
+    const folder = hb.project_folder || 'unknown';
+    if (!projectCache.has(folder)) {
       let project: any = await projectModel
-        .findOne({ user: userId, project_folder: hb.project_folder })
+        .findOne({ user: userId, project_folder: folder })
         .select('_id parent git_branches')
         .lean();
 
       if (!project) {
         const newProject = await projectModel.create({
-          name: hb.alternate_project || hb.project_folder || 'unknown',
+          name: hb.alternate_project || folder,
           user: userId,
-          project_folder: hb.project_folder,
+          project_folder: folder,
           alternate_project: hb.alternate_project,
           git_branches: hb.git_branch ? [hb.git_branch] : [],
         });
@@ -110,10 +113,10 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
         };
       }
 
-      projectCache.set(hb.project_folder, project);
+      projectCache.set(folder, project);
     }
 
-    const project = projectCache.get(hb.project_folder);
+    const project = projectCache.get(folder);
     if (!project) continue;
 
     if (hb.git_branch) {
@@ -123,7 +126,7 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
     const key = JSON.stringify({
       category: hb.category || null,
       language: hb.language || null,
-      project_folder: hb.project_folder || null,
+      project_folder: folder,
       alternate_project: hb.alternate_project || null,
       git_branch: hb.git_branch || null,
       project: project?._id || null,

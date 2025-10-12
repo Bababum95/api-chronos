@@ -16,7 +16,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "clean": "rm -rf dist node_modules",
     "copy": "ts-node -r tsconfig-paths/register ./scripts/copy-heartbeats.ts",
-    "reha": "ts-node -r tsconfig-paths/register ./scripts/rebuild-hourly-activities.ts"
+    "reha": "ts-node -r tsconfig-paths/register ./scripts/rebuild-hourly-activities.ts",
+    "fix-user-field": "ts-node -r tsconfig-paths/register ./scripts/fix-user-field.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
