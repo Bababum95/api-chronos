@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 import { Heartbeat, HeartbeatDocument } from '@/schemas/heartbeat.schema';
 import { HourlyActivity, HourlyActivityModel } from '@/schemas/hourly-activity.schema';
@@ -16,19 +16,21 @@ export class HeartbeatsService {
   ) {}
 
   async saveHeartbeats(userId: string, data: HeartbeatsInput) {
+    const userObjectId = new Types.ObjectId(userId);
+
     if (data.heartbeats?.length) {
       const heartbeats = [...data.heartbeats].sort((a, b) => a.time - b.time);
 
       await this.heartbeatModel.insertMany(
         data.heartbeats.map((heartbeat) => ({
           ...heartbeat,
-          user: userId,
+          user: userObjectId,
         })),
         { ordered: false }
       );
 
       await this.hourlyActivityModel.updateFromHeartbeats(
-        userId as any,
+        userObjectId,
         heartbeats[0].time,
         heartbeats[heartbeats.length - 1].time,
         this.heartbeatModel,

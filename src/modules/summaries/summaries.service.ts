@@ -74,6 +74,8 @@ export class SummariesService {
     const response: any = {
       totalTime,
       totalTimeStr: formatDuration(totalTime),
+      start: query.start,
+      end: query.end,
     };
 
     if (query.full) {
