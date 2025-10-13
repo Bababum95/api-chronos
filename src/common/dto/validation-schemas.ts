@@ -83,9 +83,29 @@ export const ChangePasswordSchema = z
     path: ['confirmPassword'],
   });
 
+export const CreateProjectSchema = z.object({
+  project_folder: z.string().min(1, 'Project folder is required'),
+  git_branches: z.array(z.string()).optional(),
+  alternate_project: z.string().optional(),
+  parent: z.string().optional(),
+  description: z.string().optional(),
+  name: z.string().min(1, 'Project name is required'),
+});
+
+export const UpdateProjectSchema = z.object({
+  project_folder: z.string().min(1).optional(),
+  git_branches: z.array(z.string()).optional(),
+  alternate_project: z.string().optional(),
+  parent: z.string().optional(),
+  description: z.string().optional(),
+  name: z.string().min(1).optional(),
+});
+
 export type HeartbeatsInput = z.infer<typeof HeartbeatsSchema>;
 export type SummariesQuery = z.infer<typeof SummariesQuerySchema>;
 export type SignUpInput = z.infer<typeof SignUpSchema>;
 export type SignInInput = z.infer<typeof SignInSchema>;
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
 export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
+export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
+export type UpdateProjectInput = z.infer<typeof UpdateProjectSchema>;
