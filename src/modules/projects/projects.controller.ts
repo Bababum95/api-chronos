@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { ApiKeyGuard } from '@/common/guards/api-key.guard';
@@ -19,6 +19,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
 @ApiTags('projects')
+@ApiBearerAuth('bearer')
 @Controller('projects')
 @UseGuards(ApiKeyGuard)
 export class ProjectsController {

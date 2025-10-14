@@ -11,10 +11,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 import { UploadService } from './upload.service';
 
+@ApiTags('upload')
+@ApiBearerAuth('bearer')
 @Controller('upload')
 @UseGuards(ApiKeyGuard)
 export class UploadController {
