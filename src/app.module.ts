@@ -11,6 +11,7 @@ import { FilesModule } from '@/modules/files/files.module';
 import { UploadModule } from '@/modules/upload/upload.module';
 import { PingModule } from '@/modules/ping/ping.module';
 import { CopyModule } from '@/modules/copy/copy.module';
+import { ProjectsModule } from '@/modules/projects/projects.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CopyModule } from '@/modules/copy/copy.module';
     UploadModule,
     PingModule,
     CopyModule,
+    ProjectsModule,
   ],
   controllers: [],
   providers: [],
