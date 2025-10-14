@@ -1,4 +1,5 @@
 import { Controller, Get, Put, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -7,6 +8,8 @@ import { UpdateProfileSchema, ChangePasswordSchema } from '../../common/dto/vali
 
 import { UsersService } from './users.service';
 
+@ApiTags('users')
+@ApiBearerAuth('bearer')
 @Controller('users')
 @UseGuards(ApiKeyGuard)
 export class UsersController {

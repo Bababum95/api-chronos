@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
 import { API_PREFIX } from './config/constants';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -45,6 +46,11 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3001;
   const corsOrigin = configService.get<string>('CORS_ORIGIN');
   const appUrl = configService.get<string>('APP_URL');
+
+  // Swagger: only enable in non-production environments
+  if (nodeEnv !== 'production') {
+    setupSwagger(app);
+  }
 
   await app.listen(port, '0.0.0.0');
 
