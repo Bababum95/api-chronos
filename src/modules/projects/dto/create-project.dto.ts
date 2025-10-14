@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsArray, IsMongoId, IsOptional, IsString, MinLength, ArrayNotEmpty, ArrayUnique } from 'class-validator';
+import { IsArray, IsMongoId, IsOptional, IsString, MinLength, ArrayUnique } from 'class-validator';
 
 export class CreateProjectDto {
   @ApiProperty({ description: 'Absolute or relative path to the project folder' })

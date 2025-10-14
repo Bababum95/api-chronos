@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery, Types } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
+
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -71,10 +72,7 @@ export class ProjectsService {
   async findOne(id: string, userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
-    const project = await this.projectModel
-      .findOne({ _id: id, user: userObjectId })
-      .lean()
-      .exec();
+    const project = await this.projectModel.findOne({ _id: id, user: userObjectId }).lean().exec();
 
     if (project) return project;
 
