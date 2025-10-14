@@ -58,6 +58,7 @@ async function bootstrap() {
   console.info(`📦 Environment: ${nodeEnv}`);
   console.info(`🔗 CORS enabled for: ${corsOrigin}`);
   console.info(`🔗 APP listening on ${port}`);
+  console.info(`📖 API documentation: ${appUrl}/api/docs`);
 }
 
 bootstrap();
