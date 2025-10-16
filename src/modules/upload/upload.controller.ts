@@ -9,10 +9,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { ApiKeyGuard } from '@/common/guards/api-key.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { AuthenticatedUser } from '@/common/types/authenticated-user';
 
 import { UploadService } from './upload.service';
 
@@ -25,7 +26,10 @@ export class UploadController {
 
   @Post('avatar')
   @UseInterceptors(FileInterceptor('avatar'))
-  async uploadAvatar(@CurrentUser() user: any, @UploadedFile() file: Express.Multer.File) {
+  async uploadAvatar(
+    @CurrentUser() user: AuthenticatedUser,
+    @UploadedFile() file: Express.Multer.File
+  ) {
     try {
       return await this.uploadService.uploadAvatar(user._id, file);
     } catch (error: any) {
@@ -39,7 +43,7 @@ export class UploadController {
   }
 
   @Delete('avatar/delete')
-  async deleteAvatar(@CurrentUser() user: any) {
+  async deleteAvatar(@CurrentUser() user: AuthenticatedUser) {
     try {
       return await this.uploadService.deleteAvatar(user._id);
     } catch (error: any) {

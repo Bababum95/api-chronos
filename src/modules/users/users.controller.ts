@@ -1,10 +1,11 @@
 import { Controller, Get, Put, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { ApiKeyGuard } from '../../common/guards/api-key.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { parseOrThrow } from '../../common/utils/validation.utils';
-import { UpdateProfileSchema, ChangePasswordSchema } from '../../common/dto/validation-schemas';
+import { AuthenticatedUser } from '@/common/types/authenticated-user';
+import { UpdateProfileSchema, ChangePasswordSchema } from '@/common/dto/validation-schemas';
+import { parseOrThrow } from '@/common/utils/validation.utils';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 
 import { UsersService } from './users.service';
 
@@ -16,12 +17,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
-  async getProfile(@CurrentUser() user: any) {
+  async getProfile(@CurrentUser() user: AuthenticatedUser) {
     return await this.usersService.getProfile(user._id);
   }
 
   @Put('me')
-  async updateProfile(@CurrentUser() user: any, @Body() body: any) {
+  async updateProfile(@CurrentUser() user: AuthenticatedUser, @Body() body: any) {
     try {
       const validatedData = parseOrThrow<any>(UpdateProfileSchema, body);
       return await this.usersService.updateProfile(user._id, validatedData);
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Put('me/password')
-  async changePassword(@CurrentUser() user: any, @Body() body: any) {
+  async changePassword(@CurrentUser() user: AuthenticatedUser, @Body() body: any) {
     try {
       const validatedData = parseOrThrow<any>(ChangePasswordSchema, body);
       return await this.usersService.changePassword(user._id, validatedData);

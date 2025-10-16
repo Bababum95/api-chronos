@@ -14,7 +14,7 @@ export class PingController {
       const status = this.connection.readyState;
       return { status, message: 'Connected' };
     } catch (error) {
-      console.log('Error:', error);
+      console.error('Error:', error);
       throw error;
     }
   }

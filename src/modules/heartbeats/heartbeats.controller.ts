@@ -5,6 +5,7 @@ import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { parseOrThrow } from '@/common/utils/validation.utils';
 import { HeartbeatsSchema } from '@/common/dto/validation-schemas';
+import { AuthenticatedUser } from '@/common/types/authenticated-user';
 
 import { HeartbeatsService } from './heartbeats.service';
 
@@ -16,7 +17,7 @@ export class HeartbeatsController {
   constructor(private readonly heartbeatsService: HeartbeatsService) {}
 
   @Post()
-  async saveHeartbeats(@CurrentUser() user: any, @Body() body: any) {
+  async saveHeartbeats(@CurrentUser() user: AuthenticatedUser, @Body() body: any) {
     try {
       const validatedData = parseOrThrow<any>(HeartbeatsSchema, body);
       return await this.heartbeatsService.saveHeartbeats(user._id, validatedData);

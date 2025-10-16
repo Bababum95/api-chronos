@@ -5,6 +5,7 @@ import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { parseOrThrow } from '@/common/utils/validation.utils';
 import { SummariesQuerySchema } from '@/common/dto/validation-schemas';
+import { AuthenticatedUser } from '@/common/types/authenticated-user';
 
 import { SummariesService } from './summaries.service';
 
@@ -16,12 +17,12 @@ export class SummariesController {
   constructor(private readonly summariesService: SummariesService) {}
 
   @Get()
-  async getTotalSummaries(@CurrentUser() user: any) {
+  async getTotalSummaries(@CurrentUser() user: AuthenticatedUser) {
     return await this.summariesService.getTotalSummaries(user._id);
   }
 
   @Get('range')
-  async getSummariesRange(@CurrentUser() user: any, @Query() query: any) {
+  async getSummariesRange(@CurrentUser() user: AuthenticatedUser, @Query() query: any) {
     try {
       const validatedQuery = parseOrThrow<any>(SummariesQuerySchema, {
         start: query.start,
