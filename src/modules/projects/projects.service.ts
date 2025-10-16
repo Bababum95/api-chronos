@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery, Types } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
+import { createSuccessResponse } from '@/common/types/api-response.type';
 
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -61,12 +62,14 @@ export class ProjectsService {
       this.projectModel.countDocuments(filters).exec(),
     ]);
 
-    return {
+    const response = {
       items,
       total,
       page: parsedLimit > 0 ? parsedPage : 1,
       limit: parsedLimit,
     };
+
+    return createSuccessResponse('Projects fetched successfully', response);
   }
 
   async findOne(id: string, userId: string) {
