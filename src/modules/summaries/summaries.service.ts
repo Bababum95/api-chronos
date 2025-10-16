@@ -22,8 +22,13 @@ export class SummariesService {
 
   async getTotalSummaries(userId: string) {
     const userObjectId = new Types.ObjectId(userId);
-    const data = await this.hourlyActivityModel.find({ user: userObjectId });
-    const totalTime = data.reduce((acc, curr) => acc + curr.time_spent, 0);
+
+    const result = await this.hourlyActivityModel.aggregate([
+      { $match: { user: userObjectId } },
+      { $group: { _id: null, totalTime: { $sum: '$time_spent' } } },
+    ]);
+
+    const totalTime = result[0]?.totalTime ?? 0;
 
     return createSuccessResponse('Summaries fetched successfully', { totalTime });
   }

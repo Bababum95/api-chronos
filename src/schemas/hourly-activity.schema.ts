@@ -20,12 +20,6 @@ export class HourlyActivity extends Document {
   @Prop({ type: String, index: true, unique: true })
   composite_key: string;
 
-  @Prop()
-  alternate_project?: string;
-
-  @Prop()
-  project_folder?: string;
-
   @Prop({ type: Types.ObjectId, ref: 'Project' })
   project?: Types.ObjectId;
 
@@ -126,8 +120,6 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
     const key = JSON.stringify({
       category: hb.category || null,
       language: hb.language || null,
-      project_folder: folder,
-      alternate_project: hb.alternate_project || null,
       git_branch: hb.git_branch || null,
       project: project?._id || null,
       timestamp: toHourStart(hb.time),
@@ -154,8 +146,6 @@ HourlyActivitySchema.statics.updateFromHeartbeats = async function (
           user: userId,
           category: first.category,
           language: first.language,
-          project_folder: first.project_folder,
-          alternate_project: first.alternate_project,
           git_branch: first.git_branch,
           project: project?._id,
           root_project: project?.parent ?? project?._id,

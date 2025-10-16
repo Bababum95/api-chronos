@@ -3,10 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery, Types } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
+import { HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
 
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { FindAllProjectsQuery } from './dto/find-all-query.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -24,41 +26,41 @@ export class ProjectsService {
     return created.toObject();
   }
 
-  async findAll(userId: string, query: any = {}) {
+  async findAll(userId: string, query: FindAllProjectsQuery = {}) {
     const userObjectId = new Types.ObjectId(userId);
+    const { limit, page, root } = query;
 
-    const { limit, page, sort, ...rawFilters } = query || {};
-
-    const filters: FilterQuery<ProjectDocument> = {
-      ...rawFilters,
-      user: userObjectId,
-    } as any;
-
-    // Ensure ObjectId casting for parent if provided
-    if (filters.parent && typeof filters.parent === 'string') {
-      try {
-        filters.parent = new Types.ObjectId(filters.parent);
-      } catch {
-        // ignore invalid parent filter
-        delete (filters as any).parent;
-      }
-    }
+    const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
+    if (root === true) filters.parent = { $exists: false };
 
     const parsedLimit = Math.max(0, Number(limit ?? 0));
     const parsedPage = Math.max(1, Number(page ?? 1));
 
-    const findQuery = this.projectModel.find(filters).lean();
-
-    if (sort) {
-      findQuery.sort(sort as any);
-    }
+    const aggregation: any[] = [
+      { $match: filters },
+      {
+        $lookup: {
+          from: 'hourlyactivities',
+          localField: '_id',
+          foreignField: 'root_project',
+          as: 'activity',
+        },
+      },
+      {
+        $addFields: {
+          total_time_spent: { $sum: '$activity.time_spent' },
+        },
+      },
+      { $project: { activity: 0 } },
+    ];
 
     if (parsedLimit > 0) {
-      findQuery.limit(parsedLimit).skip((parsedPage - 1) * parsedLimit);
+      aggregation.push({ $skip: (parsedPage - 1) * parsedLimit });
+      aggregation.push({ $limit: parsedLimit });
     }
 
     const [items, total] = await Promise.all([
-      findQuery.exec(),
+      this.projectModel.aggregate(aggregation).exec(),
       this.projectModel.countDocuments(filters).exec(),
     ]);
 
