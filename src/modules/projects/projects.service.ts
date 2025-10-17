@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery, Types } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
-import { HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
 
 import { CreateProjectDto } from './dto/create-project.dto';
@@ -75,19 +74,27 @@ export class ProjectsService {
   }
 
   async findOne(id: string, userId: string) {
-    const userObjectId = new Types.ObjectId(userId);
+    const [project] = await this.projectModel
+      .aggregate([
+        { $match: { _id: new Types.ObjectId(id), user: new Types.ObjectId(userId) } },
+        {
+          $lookup: {
+            from: 'projects',
+            localField: '_id',
+            foreignField: 'parent',
+            as: 'children',
+          },
+        },
+      ])
+      .exec();
 
-    const project = await this.projectModel.findOne({ _id: id, user: userObjectId }).lean().exec();
-
-    if (project) return project;
-
-    // Differentiate between not found and forbidden (belongs to another user)
-    const exists = await this.projectModel.findById(id).select('_id user').lean().exec();
-    if (exists) {
-      throw new ForbiddenException('You do not have access to this project');
+    if (!project) {
+      const exists = await this.projectModel.findById(id).select('_id user').lean().exec();
+      if (exists) throw new ForbiddenException('You do not have access to this project');
+      throw new NotFoundException('Project not found');
     }
 
-    throw new NotFoundException('Project not found');
+    return createSuccessResponse('Project fetched successfully', project);
   }
 
   async update(id: string, dto: UpdateProjectDto, userId: string) {
@@ -106,7 +113,7 @@ export class ProjectsService {
       .lean()
       .exec();
 
-    if (updated) return updated;
+    if (updated) return createSuccessResponse('Project updated successfully', updated);
 
     const exists = await this.projectModel.findById(id).select('_id user').lean().exec();
     if (exists) {
