@@ -1,17 +1,45 @@
-import { z } from 'zod';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsInt, IsOptional, Min } from 'class-validator';
 
-export const FindAllProjectsQuerySchema = z.object({
-  page: z.preprocess((val) => Number(val), z.number().int().positive().default(1)).optional(),
-  limit: z.preprocess((val) => Number(val), z.number().int().nonnegative().default(0)).optional(),
-  root: z
-    .preprocess((val) => {
-      if (typeof val === 'string') {
-        if (val.toLowerCase() === 'true' || val === '1') return true;
-        if (val.toLowerCase() === 'false' || val === '0') return false;
-      }
-      return val;
-    }, z.boolean())
-    .optional(),
-});
+/**
+ * DTO for filtering and paginating projects list
+ */
+export class FindAllProjectsQueryDto {
+  @ApiPropertyOptional({
+    description: 'Page number (starts from 1)',
+    example: 1,
+    minimum: 1,
+  })
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : 1))
+  @IsInt()
+  @Min(1)
+  page = 1;
 
-export type FindAllProjectsQuery = z.infer<typeof FindAllProjectsQuerySchema>;
+  @ApiPropertyOptional({
+    description: 'Number of items per page (0 = no limit)',
+    example: 20,
+    minimum: 0,
+  })
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : 0))
+  @IsInt()
+  @Min(0)
+  limit = 0;
+
+  @ApiPropertyOptional({
+    description: 'Return only root-level projects (no parent)',
+    example: true,
+    type: Boolean,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return ['true', '1', 'yes', 'on'].includes(value.toLowerCase());
+    }
+    return Boolean(value);
+  })
+  @IsBoolean()
+  root?: boolean;
+}

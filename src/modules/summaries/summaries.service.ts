@@ -3,15 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
 import { HourlyActivity, HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
-import { SummariesQuery } from '@/common/dto/validation-schemas';
 import { createSuccessResponse } from '@/common/types/api-response.type';
 import { formatDuration } from '@/common/utils/time.utils';
-import { HOUR, DAY } from '@/config/constants';
+import { bucketActivities } from '@/common/utils/bucket-activities.utils';
 
-import { bucketActivities } from './utils/bucket-activities';
 import { aggregateActivities } from './utils/aggregate-activities';
 import type { SummariesRangeResponse } from './types/summary-response.type';
-import { Activity } from './types/activity.type';
+import type { Activity } from './types/activity.type';
+import type { GetSummariesRangeDto } from './dto/get-summaries-range.dto';
 
 @Injectable()
 export class SummariesService {
@@ -33,15 +32,11 @@ export class SummariesService {
     return createSuccessResponse('Summaries fetched successfully', { totalTime });
   }
 
-  async getSummariesRange(userId: string, query: SummariesQuery, intervalParam?: string) {
-    const startSec = Number(query.start);
-    const endSec = Number(query.end);
-    const range = endSec - startSec;
-    const interval = Number(intervalParam ?? (range < DAY ? HOUR : DAY));
+  async getSummariesRange(userId: string, { start, end, full, interval }: GetSummariesRangeDto) {
     const userObjectId = new Types.ObjectId(userId);
 
     const data = await this.hourlyActivityModel
-      .find({ user: userObjectId, timestamp: { $gte: startSec, $lte: endSec } })
+      .find({ user: userObjectId, timestamp: { $gte: start, $lte: end } })
       .select('root_project time_spent timestamp')
       .populate('root_project', 'name')
       .lean<Activity[]>();
@@ -50,13 +45,13 @@ export class SummariesService {
 
     const response: SummariesRangeResponse = {
       totalTime,
+      end,
+      start,
       totalTimeStr: formatDuration(totalTime),
-      start: startSec,
-      end: endSec,
     };
 
-    if (query.full) {
-      const activitiesBuckets = bucketActivities(data, startSec, endSec, interval);
+    if (full) {
+      const activitiesBuckets = bucketActivities(data, start, end, interval);
       response.activities = aggregateActivities(activitiesBuckets);
     }
 

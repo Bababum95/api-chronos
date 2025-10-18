@@ -1,13 +1,15 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, FilterQuery, Types } from 'mongoose';
+import { Model, FilterQuery, Types, PipelineStage } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
+import { bucketActivities } from '@/common/utils/bucket-activities.utils';
 
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { FindAllProjectsQuery } from './dto/find-all-query.dto';
+import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
+import { FindOneProjectQueryDto } from './dto/find-one-query.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -25,17 +27,14 @@ export class ProjectsService {
     return created.toObject();
   }
 
-  async findAll(userId: string, query: FindAllProjectsQuery = {}) {
+  async findAll(userId: string, query: FindAllProjectsQueryDto) {
     const userObjectId = new Types.ObjectId(userId);
     const { limit, page, root } = query;
 
     const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
     if (root === true) filters.parent = { $exists: false };
 
-    const parsedLimit = Math.max(0, Number(limit ?? 0));
-    const parsedPage = Math.max(1, Number(page ?? 1));
-
-    const aggregation: any[] = [
+    const aggregation: PipelineStage[] = [
       { $match: filters },
       {
         $lookup: {
@@ -53,9 +52,9 @@ export class ProjectsService {
       { $project: { activity: 0 } },
     ];
 
-    if (parsedLimit > 0) {
-      aggregation.push({ $skip: (parsedPage - 1) * parsedLimit });
-      aggregation.push({ $limit: parsedLimit });
+    if (limit > 0) {
+      aggregation.push({ $skip: (page - 1) * limit });
+      aggregation.push({ $limit: limit });
     }
 
     const [items, total] = await Promise.all([
@@ -66,23 +65,70 @@ export class ProjectsService {
     const response = {
       items,
       total,
-      page: parsedLimit > 0 ? parsedPage : 1,
-      limit: parsedLimit,
+      page: limit > 0 ? page : 1,
+      limit,
     };
 
     return createSuccessResponse('Projects fetched successfully', response);
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, userId: string, { start, end, interval }: FindOneProjectQueryDto) {
     const [project] = await this.projectModel
       .aggregate([
-        { $match: { _id: new Types.ObjectId(id), user: new Types.ObjectId(userId) } },
+        {
+          $match: {
+            _id: new Types.ObjectId(id),
+            user: new Types.ObjectId(userId),
+          },
+        },
         {
           $lookup: {
             from: 'projects',
             localField: '_id',
             foreignField: 'parent',
             as: 'children',
+          },
+        },
+        {
+          $lookup: {
+            from: 'hourlyactivities',
+            let: { projectId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $or: [
+                      { $eq: ['$root_project', '$$projectId'] },
+                      { $eq: ['$project', '$$projectId'] },
+                    ],
+                  },
+                },
+              },
+              {
+                $project: {
+                  _id: 1,
+                  git_branch: 1,
+                  time_spent: 1,
+                  timestamp: 1,
+                  project: 1,
+                },
+              },
+            ],
+            as: 'activities',
+          },
+        },
+        {
+          $addFields: {
+            total_time_spent: { $sum: '$activities.time_spent' },
+            activities: {
+              $filter: {
+                input: '$activities',
+                as: 'a',
+                cond: {
+                  $and: [{ $gte: ['$$a.timestamp', start] }, { $lte: ['$$a.timestamp', end] }],
+                },
+              },
+            },
           },
         },
       ])
@@ -94,14 +140,17 @@ export class ProjectsService {
       throw new NotFoundException('Project not found');
     }
 
-    return createSuccessResponse('Project fetched successfully', project);
+    return createSuccessResponse('Project fetched successfully', {
+      ...project,
+      activities: bucketActivities(project.activities, start, end, interval),
+    });
   }
 
   async update(id: string, dto: UpdateProjectDto, userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
     // Never allow changing ownership
-    const { parent, ...rest } = dto as any;
+    const { parent, ...rest } = dto;
 
     const update: any = { ...rest };
     if (typeof parent !== 'undefined') {

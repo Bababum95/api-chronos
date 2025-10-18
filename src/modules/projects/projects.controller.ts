@@ -18,6 +18,8 @@ import { AuthenticatedUser } from '@/common/types/authenticated-user';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
+import { FindOneProjectQueryDto } from './dto/find-one-query.dto';
 
 @ApiTags('projects')
 @ApiBearerAuth('bearer')
@@ -32,13 +34,17 @@ export class ProjectsController {
   }
 
   @Get()
-  async findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: any) {
+  async findAll(@CurrentUser() user: AuthenticatedUser, @Query() query: FindAllProjectsQueryDto) {
     return this.projectsService.findAll(user._id, query);
   }
 
   @Get(':id')
-  async findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
-    return this.projectsService.findOne(id, user._id);
+  async findOne(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('id') id: string,
+    @Query() query: FindOneProjectQueryDto
+  ) {
+    return this.projectsService.findOne(id, user._id, query);
   }
 
   @Patch(':id')
