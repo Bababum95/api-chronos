@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { Project, ProjectSchema } from '@/schemas/project.schema';
 import { User, UserSchema } from '@/schemas/user.schema';
+import { ActivitiesModule } from '@/modules/activities/activities.module';
 
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
@@ -13,6 +14,7 @@ import { ProjectsService } from './projects.service';
       { name: Project.name, schema: ProjectSchema },
       { name: User.name, schema: UserSchema },
     ]),
+    ActivitiesModule,
   ],
   controllers: [ProjectsController],
   providers: [ProjectsService],

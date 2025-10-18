@@ -4,12 +4,10 @@ import { Model, FilterQuery, Types, PipelineStage } from 'mongoose';
 
 import { Project, ProjectDocument } from '@/schemas/project.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
-import { bucketActivities } from '@/common/utils/bucket-activities.utils';
 
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
-import { FindOneProjectQueryDto } from './dto/find-one-query.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -72,7 +70,7 @@ export class ProjectsService {
     return createSuccessResponse('Projects fetched successfully', response);
   }
 
-  async findOne(id: string, userId: string, { start, end, interval }: FindOneProjectQueryDto) {
+  async findOne(id: string, userId: string) {
     const [project] = await this.projectModel
       .aggregate([
         {
@@ -104,15 +102,6 @@ export class ProjectsService {
                   },
                 },
               },
-              {
-                $project: {
-                  _id: 1,
-                  git_branch: 1,
-                  time_spent: 1,
-                  timestamp: 1,
-                  project: 1,
-                },
-              },
             ],
             as: 'activities',
           },
@@ -120,17 +109,9 @@ export class ProjectsService {
         {
           $addFields: {
             total_time_spent: { $sum: '$activities.time_spent' },
-            activities: {
-              $filter: {
-                input: '$activities',
-                as: 'a',
-                cond: {
-                  $and: [{ $gte: ['$$a.timestamp', start] }, { $lte: ['$$a.timestamp', end] }],
-                },
-              },
-            },
           },
         },
+        { $project: { activities: 0 } },
       ])
       .exec();
 
@@ -140,10 +121,7 @@ export class ProjectsService {
       throw new NotFoundException('Project not found');
     }
 
-    return createSuccessResponse('Project fetched successfully', {
-      ...project,
-      activities: bucketActivities(project.activities, start, end, interval),
-    });
+    return createSuccessResponse('Project fetched successfully', project);
   }
 
   async update(id: string, dto: UpdateProjectDto, userId: string) {

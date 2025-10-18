@@ -4,7 +4,7 @@ import { IsInt, IsOptional, Min } from 'class-validator';
 
 import { HOUR } from '@/config/constants';
 
-export class FindOneProjectQueryDto {
+export class ActivitiesQueryDto {
   @ApiPropertyOptional({
     description: 'Start time as UNIX timestamp (seconds since epoch)',
     example: 1760720400,

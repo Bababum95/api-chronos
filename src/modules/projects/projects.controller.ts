@@ -14,19 +14,23 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { AuthenticatedUser } from '@/common/types/authenticated-user';
+import { ActivitiesService } from '@/modules/activities/activities.service';
+import { ActivitiesQueryDto } from '@/modules/activities/dto/activities-query.dto';
 
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
-import { FindOneProjectQueryDto } from './dto/find-one-query.dto';
 
 @ApiTags('projects')
 @ApiBearerAuth('bearer')
 @Controller('projects')
 @UseGuards(ApiKeyGuard)
 export class ProjectsController {
-  constructor(private readonly projectsService: ProjectsService) {}
+  constructor(
+    private readonly projectsService: ProjectsService,
+    private readonly activitiesService: ActivitiesService
+  ) {}
 
   @Post()
   async create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateProjectDto) {
@@ -39,12 +43,17 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  async findOne(
+  async findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.projectsService.findOne(id, user._id);
+  }
+
+  @Get(':id/activities')
+  async getActivities(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
-    @Query() query: FindOneProjectQueryDto
+    @Query() query: ActivitiesQueryDto
   ) {
-    return this.projectsService.findOne(id, user._id, query);
+    return this.activitiesService.findByProject(id, user._id, query);
   }
 
   @Patch(':id')
