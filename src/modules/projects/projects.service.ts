@@ -27,10 +27,12 @@ export class ProjectsService {
 
   async findAll(userId: string, query: FindAllProjectsQueryDto) {
     const userObjectId = new Types.ObjectId(userId);
-    const { limit, page, root } = query;
+    const { limit, page, root, includeArchived } = query;
 
     const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
     if (root === true) filters.parent = { $exists: false };
+    // Only include non-archived projects unless includeArchived is true
+    if (includeArchived !== true) filters.is_archived = { $ne: true };
 
     const aggregation: PipelineStage[] = [
       { $match: filters },
@@ -68,6 +70,16 @@ export class ProjectsService {
     };
 
     return createSuccessResponse('Projects fetched successfully', response);
+  }
+
+  async getFavorites(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+    const favorites = await this.projectModel
+      .find({ user: userObjectId, is_favorite: true })
+      .select('name')
+      .lean()
+      .exec();
+    return createSuccessResponse('Favorites fetched successfully', favorites);
   }
 
   async findOne(id: string, userId: string) {

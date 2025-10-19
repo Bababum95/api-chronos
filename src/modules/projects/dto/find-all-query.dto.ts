@@ -42,4 +42,19 @@ export class FindAllProjectsQueryDto {
   })
   @IsBoolean()
   root?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Include archived projects in the response',
+    example: false,
+    type: Boolean,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      return ['true', '1', 'yes', 'on'].includes(value.toLowerCase());
+    }
+    return Boolean(value);
+  })
+  @IsBoolean()
+  includeArchived?: boolean;
 }

@@ -42,6 +42,11 @@ export class ProjectsController {
     return this.projectsService.findAll(user._id, query);
   }
 
+  @Get('favorites')
+  async getFavorites(@CurrentUser() user: AuthenticatedUser) {
+    return this.projectsService.getFavorites(user._id);
+  }
+
   @Get(':id')
   async findOne(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.projectsService.findOne(id, user._id);
