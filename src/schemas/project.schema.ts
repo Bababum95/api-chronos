@@ -27,6 +27,12 @@ export class Project extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ default: false })
+  is_favorite: boolean;
+
+  @Prop({ default: false })
+  is_archived: boolean;
+
   createdAt: Date;
   updatedAt: Date;
 }

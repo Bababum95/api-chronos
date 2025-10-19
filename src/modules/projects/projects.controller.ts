@@ -65,6 +65,26 @@ export class ProjectsController {
     return this.projectsService.update(id, dto, user._id);
   }
 
+  @Patch('add-to-favorite/:id')
+  async addToFavorite(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.projectsService.update(id, { is_favorite: true }, user._id);
+  }
+
+  @Patch('remove-from-favorite/:id')
+  async removeFromFavorite(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.projectsService.update(id, { is_favorite: false }, user._id);
+  }
+
+  @Patch('add-to-archive/:id')
+  async addToArchive(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.projectsService.update(id, { is_archived: true }, user._id);
+  }
+
+  @Patch('remove-from-archive/:id')
+  async removeFromArchive(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.projectsService.update(id, { is_archived: false }, user._id);
+  }
+
   @Delete(':id')
   async remove(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.projectsService.remove(id, user._id);
