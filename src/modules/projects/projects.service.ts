@@ -8,6 +8,7 @@ import { createSuccessResponse } from '@/common/types/api-response.type';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
+import { FindProjectsForSelectQueryDto } from './dto/find-projects-for-select-query.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -136,21 +137,49 @@ export class ProjectsService {
     return createSuccessResponse('Project fetched successfully', project);
   }
 
-  async findForSelect(userId: string) {
+  async findForSelect(userId: string, query: FindProjectsForSelectQueryDto) {
     const userObjectId = new Types.ObjectId(userId);
+    const { page, limit, root, archived } = query;
+
+    // Build filter conditions
+    const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
+    
+    // If root = true, add condition for projects without parent
+    if (root === true) {
+      filters.parent = { $exists: false };
+    }
+    
+    // If archived = false, exclude archived projects
+    if (archived === false) {
+      filters.is_archived = false;
+    }
+
+    // Get total count for pagination
+    const total = await this.projectModel.countDocuments(filters).exec();
+
+    // Apply pagination and get projects
     const projects = await this.projectModel
-      .find({ user: userObjectId })
+      .find(filters)
       .select('_id name')
       .sort({ name: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .lean()
       .exec();
 
-    const options = projects.map((p) => ({
+    const items = projects.map((p) => ({
       value: p._id.toString(),
       label: p.name,
     }));
 
-    return createSuccessResponse('Projects for select fetched successfully', options);
+    const response = {
+      items,
+      total,
+      page,
+      limit,
+    };
+
+    return createSuccessResponse('Projects for select fetched successfully', response);
   }
 
   async update(id: string, dto: UpdateProjectDto, userId: string) {
