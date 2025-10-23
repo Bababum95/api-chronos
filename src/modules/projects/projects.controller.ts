@@ -21,6 +21,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
+import { FindProjectsForSelectQueryDto } from './dto/find-projects-for-select-query.dto';
 
 @ApiTags('projects')
 @ApiBearerAuth('bearer')
@@ -46,8 +47,8 @@ export class ProjectsController {
 
   @Get('select')
   @ApiOperation({ summary: 'Get simplified project list for select' })
-  async findForSelect(@CurrentUser() user: AuthenticatedUser) {
-    return this.projectsService.findForSelect(user._id);
+  async findForSelect(@CurrentUser() user: AuthenticatedUser, @Query() query: FindProjectsForSelectQueryDto) {
+    return this.projectsService.findForSelect(user._id, query);
   }
 
   @ApiOperation({ summary: 'Get favorite projects for user' })
