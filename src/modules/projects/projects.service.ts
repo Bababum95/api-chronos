@@ -136,13 +136,30 @@ export class ProjectsService {
     return createSuccessResponse('Project fetched successfully', project);
   }
 
+  async findForSelect(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+    const projects = await this.projectModel
+      .find({ user: userObjectId })
+      .select('_id name')
+      .sort({ name: 1 })
+      .lean()
+      .exec();
+
+    const options = projects.map((p) => ({
+      value: p._id.toString(),
+      label: p.name,
+    }));
+
+    return createSuccessResponse('Projects for select fetched successfully', options);
+  }
+
   async update(id: string, dto: UpdateProjectDto, userId: string) {
     const userObjectId = new Types.ObjectId(userId);
 
     // Never allow changing ownership
     const { parent, ...rest } = dto;
 
-    const update: any = { ...rest };
+    const update: Partial<Project> = { ...rest };
     if (typeof parent !== 'undefined') {
       update.parent = parent ? new Types.ObjectId(parent) : null;
     }

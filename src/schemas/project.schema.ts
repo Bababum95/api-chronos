@@ -19,7 +19,7 @@ export class Project extends Document {
   alternate_project?: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Project' })
-  parent?: Types.ObjectId;
+  parent?: Types.ObjectId | null;
 
   @Prop()
   description?: string;
