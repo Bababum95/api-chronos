@@ -26,50 +26,67 @@ export class ProjectsService {
     return created.toObject();
   }
 
-  async findAll(userId: string, query: FindAllProjectsQueryDto) {
-    const userObjectId = new Types.ObjectId(userId);
-    const { limit, page, root, includeArchived } = query;
-
-    const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
-    if (root === true) filters.parent = { $exists: false };
-    // Only include non-archived projects unless includeArchived is true
-    if (includeArchived !== true) filters.is_archived = { $ne: true };
-
-    const aggregation: PipelineStage[] = [
-      { $match: filters },
+  private getActivityAggregationStages(): PipelineStage[] {
+    return [
       {
         $lookup: {
           from: 'hourlyactivities',
-          localField: '_id',
-          foreignField: 'root_project',
-          as: 'activity',
+          let: { projectId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $or: [
+                    { $eq: ['$root_project', '$$projectId'] },
+                    { $eq: ['$project', '$$projectId'] },
+                  ],
+                },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                total_time_spent: { $sum: '$time_spent' },
+              },
+            },
+          ],
+          as: 'activity_summary',
         },
       },
       {
         $addFields: {
-          total_time_spent: { $sum: '$activity.time_spent' },
+          total_time_spent: { $ifNull: [{ $first: '$activity_summary.total_time_spent' }, 0] },
         },
       },
-      { $project: { activity: 0 } },
+      { $project: { activity_summary: 0 } },
+    ];
+  }
+
+  async findAll(userId: string, query: FindAllProjectsQueryDto) {
+    const userObjectId = new Types.ObjectId(userId);
+    const { limit, page, root, includeArchived, parent } = query;
+
+    const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
+    if (root === true) filters.parent = { $exists: false };
+    if (parent) filters.parent = new Types.ObjectId(parent);
+    if (includeArchived !== true) filters.is_archived = { $ne: true };
+
+    const baseStages: PipelineStage[] = [
+      { $match: filters },
+      ...this.getActivityAggregationStages(),
     ];
 
     if (limit > 0) {
-      aggregation.push({ $skip: (page - 1) * limit });
-      aggregation.push({ $limit: limit });
+      baseStages.push({ $skip: (page - 1) * limit });
+      baseStages.push({ $limit: limit });
     }
 
     const [items, total] = await Promise.all([
-      this.projectModel.aggregate(aggregation).exec(),
+      this.projectModel.aggregate(baseStages).exec(),
       this.projectModel.countDocuments(filters).exec(),
     ]);
 
-    const response = {
-      items,
-      total,
-      page: limit > 0 ? page : 1,
-      limit,
-    };
-
+    const response = { items, total, page: limit > 0 ? page : 1, limit };
     return createSuccessResponse('Projects fetched successfully', response);
   }
 
@@ -84,53 +101,16 @@ export class ProjectsService {
   }
 
   async findOne(id: string, userId: string) {
-    const [project] = await this.projectModel
-      .aggregate([
-        {
-          $match: {
-            _id: new Types.ObjectId(id),
-            user: new Types.ObjectId(userId),
-          },
-        },
-        {
-          $lookup: {
-            from: 'projects',
-            localField: '_id',
-            foreignField: 'parent',
-            as: 'children',
-          },
-        },
-        {
-          $lookup: {
-            from: 'hourlyactivities',
-            let: { projectId: '$_id' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $or: [
-                      { $eq: ['$root_project', '$$projectId'] },
-                      { $eq: ['$project', '$$projectId'] },
-                    ],
-                  },
-                },
-              },
-            ],
-            as: 'activities',
-          },
-        },
-        {
-          $addFields: {
-            total_time_spent: { $sum: '$activities.time_spent' },
-          },
-        },
-        { $project: { activities: 0 } },
-      ])
-      .exec();
+    const matchStage: PipelineStage.Match = {
+      $match: { _id: new Types.ObjectId(id), user: new Types.ObjectId(userId) },
+    };
+
+    const aggregation = [matchStage, ...this.getActivityAggregationStages()];
+    const [project] = await this.projectModel.aggregate(aggregation).exec();
 
     if (!project) {
-      const exists = await this.projectModel.findById(id).select('_id user').lean().exec();
-      if (exists) throw new ForbiddenException('You do not have access to this project');
+      const owner = await this.projectModel.exists({ _id: id });
+      if (owner) throw new ForbiddenException('You do not have access to this project');
       throw new NotFoundException('Project not found');
     }
 

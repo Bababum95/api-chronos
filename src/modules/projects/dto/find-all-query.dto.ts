@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsMongoId, IsOptional, Min } from 'class-validator';
 
 /**
  * DTO for filtering and paginating projects list
@@ -57,4 +57,9 @@ export class FindAllProjectsQueryDto {
   })
   @IsBoolean()
   includeArchived?: boolean;
+
+  @ApiPropertyOptional({ description: 'Parent project id' })
+  @IsOptional()
+  @IsMongoId()
+  parent?: string;
 }
