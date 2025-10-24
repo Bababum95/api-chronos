@@ -143,15 +143,15 @@ export class ProjectsService {
 
     // Build filter conditions
     const filters: FilterQuery<ProjectDocument> = { user: userObjectId };
-    
-    // If root = true, add condition for projects without parent
+
+    // If root = true, add condition for projects without parent or with parent = null
     if (root === true) {
-      filters.parent = { $exists: false };
+      filters.$or = [{ parent: { $exists: false } }, { parent: null }];
     }
-    
+
     // If archived = false, exclude archived projects
     if (archived === false) {
-      filters.is_archived = false;
+      filters.is_archived = { $ne: true };
     }
 
     // Get total count for pagination

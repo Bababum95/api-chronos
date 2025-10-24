@@ -47,7 +47,10 @@ export class ProjectsController {
 
   @Get('select')
   @ApiOperation({ summary: 'Get simplified project list for select' })
-  async findForSelect(@CurrentUser() user: AuthenticatedUser, @Query() query: FindProjectsForSelectQueryDto) {
+  async findForSelect(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: FindProjectsForSelectQueryDto
+  ) {
     return this.projectsService.findForSelect(user._id, query);
   }
 
