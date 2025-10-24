@@ -105,7 +105,30 @@ export class ProjectsService {
       $match: { _id: new Types.ObjectId(id), user: new Types.ObjectId(userId) },
     };
 
-    const aggregation = [matchStage, ...this.getActivityAggregationStages()];
+    const lookupParentStage: PipelineStage.Lookup = {
+      $lookup: {
+        from: 'projects',
+        localField: 'parent',
+        foreignField: '_id',
+        as: 'parent_data',
+        pipeline: [{ $project: { _id: 1, name: 1 } }],
+      },
+    };
+
+    const addParentObjectStage: PipelineStage.AddFields = {
+      $addFields: {
+        parent: { $first: '$parent_data' },
+      },
+    };
+
+    const aggregation: PipelineStage[] = [
+      matchStage,
+      lookupParentStage,
+      addParentObjectStage,
+      ...this.getActivityAggregationStages(),
+      { $project: { parent_data: 0 } },
+    ];
+
     const [project] = await this.projectModel.aggregate(aggregation).exec();
 
     if (!project) {
