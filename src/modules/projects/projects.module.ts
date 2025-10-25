@@ -6,7 +6,9 @@ import { User, UserSchema } from '@/schemas/user.schema';
 import { ActivitiesModule } from '@/modules/activities/activities.module';
 
 import { ProjectsController } from './projects.controller';
-import { ProjectsService } from './projects.service';
+import { ProjectsService } from './services/projects.service';
+import { ProjectQueryBuilderService } from './services/project-query-builder.service';
+import { ProjectAggregationService } from './services/project-aggregation.service';
 
 @Module({
   imports: [
@@ -17,6 +19,6 @@ import { ProjectsService } from './projects.service';
     ActivitiesModule,
   ],
   controllers: [ProjectsController],
-  providers: [ProjectsService],
+  providers: [ProjectsService, ProjectAggregationService, ProjectQueryBuilderService],
 })
 export class ProjectsModule {}

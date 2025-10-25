@@ -17,11 +17,10 @@ import { AuthenticatedUser } from '@/common/types/authenticated-user';
 import { ActivitiesService } from '@/modules/activities/activities.service';
 import { ActivitiesQueryDto } from '@/modules/activities/dto/activities-query.dto';
 
-import { ProjectsService } from './projects.service';
+import { ProjectsService } from './services/projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
-import { FindProjectsForSelectQueryDto } from './dto/find-projects-for-select-query.dto';
 
 @ApiTags('projects')
 @ApiBearerAuth('bearer')
@@ -49,7 +48,7 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Get simplified project list for select' })
   async findForSelect(
     @CurrentUser() user: AuthenticatedUser,
-    @Query() query: FindProjectsForSelectQueryDto
+    @Query() query: FindAllProjectsQueryDto
   ) {
     return this.projectsService.findForSelect(user._id, query);
   }
