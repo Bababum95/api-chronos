@@ -63,7 +63,7 @@ export class ProjectsService {
   }
 
   async findForSelect(userId: string, query: FindAllProjectsQueryDto) {
-    const filters = this.queryBuilder.buildFindAllFilters(userId, query);
+    const filters = this.queryBuilder.buildFindAllFilters(userId, { ...query, root: true });
     const { limit, page } = query;
 
     const total = await this.projectModel.countDocuments(filters).exec();
