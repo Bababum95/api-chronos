@@ -11,6 +11,7 @@ import { z } from 'zod';
 
 import { User, UserDocument } from '../../schemas/user.schema';
 import { parseOrThrow } from '../utils/validation.utils';
+import { extractBasicApiKey } from '../utils/auth-header.utils';
 
 const ApiKeySchema = z.object({
   apiKey: z
@@ -28,7 +29,7 @@ export class ApiKeyGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const apiKey = this.extractApiKey(request);
+    const apiKey = extractBasicApiKey(request.headers['authorization']);
 
     if (!apiKey) {
       throw new NotFoundException('API key is required');
@@ -58,23 +59,5 @@ export class ApiKeyGuard implements CanActivate {
 
     request.user = { ...user, _id: user._id.toString() };
     return true;
-  }
-
-  private extractApiKey(request: any): string | null {
-    const authHeader = request.headers['authorization'];
-
-    if (!authHeader || !authHeader.startsWith('Basic ')) {
-      return null;
-    }
-
-    try {
-      const base64Credentials = authHeader.split(' ')[1];
-      const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-      const [apiKey] = credentials.split(':');
-
-      return apiKey || null;
-    } catch {
-      return null;
-    }
   }
 }
