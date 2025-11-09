@@ -87,12 +87,6 @@ describe('UsersService', () => {
 npm test
 ```
 
-### Unit и Integration тесты с watch mode
-
-```bash
-npm run test:watch
-```
-
 ### Тесты с coverage
 
 ```bash
