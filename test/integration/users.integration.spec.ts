@@ -15,7 +15,6 @@ import { User, UserSchema } from '@/schemas/user.schema';
  * В этих тестах используется MongoMemoryServer - in-memory MongoDB
  * для изоляции тестов от реальной базы данных.
  *
- * Установка: npm install -D mongodb-memory-server
  * Для запуска: npm test users.integration.spec
  */
 describe('UsersService Integration Tests', () => {

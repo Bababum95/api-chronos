@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus } from '@nestjs/common';
 
-import { AuthenticatedUser } from '@/common/types/authenticated-user';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { UsersController } from '@/modules/users/users.controller';
+import { UsersService } from '@/modules/users/users.service';
 
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { mockAuthenticatedUser } from './__mocks__/user.mock';
 
 /**
  * Unit тесты для UsersController
@@ -18,19 +18,11 @@ describe('UsersController', () => {
   let controller: UsersController;
   let service: UsersService;
 
-  // Mock данные
-  const mockUser: AuthenticatedUser = {
-    _id: '507f1f77bcf86cd799439011',
-    name: 'Test User',
-    email: 'test@example.com',
-    apiKey: 'test-api-key',
-  };
-
   const mockUserProfile = {
     success: true,
     message: 'User fetched successfully',
     data: {
-      _id: mockUser._id,
+      _id: mockAuthenticatedUser._id,
       name: 'Test User',
       email: 'test@example.com',
     },
@@ -43,6 +35,11 @@ describe('UsersController', () => {
     changePassword: jest.fn(),
   };
 
+  // Mock для ApiKeyGuard
+  const mockApiKeyGuard = {
+    canActivate: jest.fn(() => true),
+  };
+
   beforeEach(async () => {
     // Создаем тестовый модуль с замокированным сервисом
     const module: TestingModule = await Test.createTestingModule({
@@ -53,7 +50,10 @@ describe('UsersController', () => {
           useValue: mockUsersService,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(ApiKeyGuard)
+      .useValue(mockApiKeyGuard)
+      .compile();
 
     controller = module.get<UsersController>(UsersController);
     service = module.get<UsersService>(UsersService);
@@ -76,10 +76,10 @@ describe('UsersController', () => {
       mockUsersService.getProfile.mockResolvedValue(mockUserProfile);
 
       // Act
-      const result = await controller.getProfile(mockUser);
+      const result = await controller.getProfile(mockAuthenticatedUser);
 
       // Assert
-      expect(service.getProfile).toHaveBeenCalledWith(mockUser._id);
+      expect(service.getProfile).toHaveBeenCalledWith(mockAuthenticatedUser._id);
       expect(result).toEqual(mockUserProfile);
     });
 
@@ -89,7 +89,7 @@ describe('UsersController', () => {
       mockUsersService.getProfile.mockRejectedValue(error);
 
       // Act & Assert
-      await expect(controller.getProfile(mockUser)).rejects.toThrow(error);
+      await expect(controller.getProfile(mockAuthenticatedUser)).rejects.toThrow(error);
     });
   });
 
@@ -108,10 +108,10 @@ describe('UsersController', () => {
       mockUsersService.updateProfile.mockResolvedValue(updatedProfile);
 
       // Act
-      const result = await controller.updateProfile(mockUser, updateData);
+      const result = await controller.updateProfile(mockAuthenticatedUser, updateData);
 
       // Assert
-      expect(service.updateProfile).toHaveBeenCalledWith(mockUser._id, updateData);
+      expect(service.updateProfile).toHaveBeenCalledWith(mockAuthenticatedUser._id, updateData);
       expect(result).toEqual(updatedProfile);
     });
 
@@ -130,7 +130,7 @@ describe('UsersController', () => {
       // Act & Assert
       // Примечание: в реальном сценарии ValidationError выбрасывается parseOrThrow
       // Здесь мы просто проверяем, что ошибки правильно обрабатываются
-      await expect(controller.updateProfile(mockUser, invalidData)).rejects.toThrow();
+      await expect(controller.updateProfile(mockAuthenticatedUser, invalidData)).rejects.toThrow();
     });
   });
 
@@ -143,6 +143,7 @@ describe('UsersController', () => {
       const passwordData = {
         currentPassword: 'oldPassword',
         newPassword: 'newPassword',
+        confirmPassword: 'newPassword',
       };
       const successResponse = {
         success: true,
@@ -152,10 +153,10 @@ describe('UsersController', () => {
       mockUsersService.changePassword.mockResolvedValue(successResponse);
 
       // Act
-      const result = await controller.changePassword(mockUser, passwordData);
+      const result = await controller.changePassword(mockAuthenticatedUser, passwordData);
 
       // Assert
-      expect(service.changePassword).toHaveBeenCalledWith(mockUser._id, passwordData);
+      expect(service.changePassword).toHaveBeenCalledWith(mockAuthenticatedUser._id, passwordData);
       expect(result).toEqual(successResponse);
     });
 
@@ -164,12 +165,15 @@ describe('UsersController', () => {
       const passwordData = {
         currentPassword: 'wrongPassword',
         newPassword: 'newPassword',
+        confirmPassword: 'newPassword',
       };
       const error = new Error('Current password is incorrect');
       mockUsersService.changePassword.mockRejectedValue(error);
 
       // Act & Assert
-      await expect(controller.changePassword(mockUser, passwordData)).rejects.toThrow(error);
+      await expect(controller.changePassword(mockAuthenticatedUser, passwordData)).rejects.toThrow(
+        error
+      );
     });
   });
 });

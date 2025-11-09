@@ -7,17 +7,10 @@
     "build": "nest build",
     "start": "nest start",
     "dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "test": "jest",
-    "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "clean": "rm -rf dist node_modules",
-    "copy": "ts-node -r tsconfig-paths/register ./scripts/copy-heartbeats.ts",
-    "reha": "ts-node -r tsconfig-paths/register ./scripts/rebuild-hourly-activities.ts",
-    "fix-user-field": "ts-node -r tsconfig-paths/register ./scripts/fix-user-field.ts"
+    "test:e2e": "jest --config ./test/jest-e2e.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",

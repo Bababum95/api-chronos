@@ -4,8 +4,10 @@ import { NotFoundException, ConflictException, BadRequestException } from '@nest
 import { Model } from 'mongoose';
 
 import { User, UserDocument } from '@/schemas/user.schema';
+import { UsersService } from '@/modules/users/users.service';
 
-import { UsersService } from './users.service';
+import { mockUser } from './__mocks__/user.mock';
+import { mockUserModel } from './__mocks__/user-model.mock';
 
 /**
  * Unit тесты для UsersService
@@ -18,23 +20,6 @@ import { UsersService } from './users.service';
 describe('UsersService', () => {
   let service: UsersService;
   let model: Model<UserDocument>;
-
-  // Mock данные для тестов
-  const mockUser = {
-    _id: '507f1f77bcf86cd799439011',
-    name: 'Test User',
-    email: 'test@example.com',
-    password: 'hashedPassword123',
-    save: jest.fn(),
-    comparePassword: jest.fn(),
-  };
-
-  // Mock для Mongoose Model
-  const mockUserModel = {
-    findById: jest.fn(),
-    findOne: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-  };
 
   beforeEach(async () => {
     // Создаем тестовый модуль с замокированной моделью
