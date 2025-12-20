@@ -7,10 +7,12 @@
     "build": "nest build",
     "start": "nest start",
     "dev": "nest start --watch",
+    "lint": "eslint \"src/**/*.ts\" --fix && tsc --noEmit",
     "start:prod": "node dist/main",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.config.ts"
+    "test:e2e": "jest --config ./test/jest-e2e.config.ts",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",

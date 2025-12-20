@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { User, UserSchema } from '@/schemas/user.schema';
 import { HourlyActivity, HourlyActivitySchema } from '@/schemas/hourly-activity.schema';
+import { User, UserSchema } from '@/schemas/user.schema';
 
 import { SummariesController } from './summaries.controller';
 import { SummariesService } from './summaries.service';

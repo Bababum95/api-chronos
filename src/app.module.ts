@@ -4,14 +4,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { loadConfiguration } from '@/config/configuration';
 import { AuthModule } from '@/modules/auth/auth.module';
-import { UsersModule } from '@/modules/users/users.module';
-import { HeartbeatsModule } from '@/modules/heartbeats/heartbeats.module';
-import { SummariesModule } from '@/modules/summaries/summaries.module';
-import { FilesModule } from '@/modules/files/files.module';
-import { UploadModule } from '@/modules/upload/upload.module';
-import { PingModule } from '@/modules/ping/ping.module';
 import { CopyModule } from '@/modules/copy/copy.module';
+import { FilesModule } from '@/modules/files/files.module';
+import { HeartbeatsModule } from '@/modules/heartbeats/heartbeats.module';
+import { PingModule } from '@/modules/ping/ping.module';
 import { ProjectsModule } from '@/modules/projects/projects.module';
+import { SummariesModule } from '@/modules/summaries/summaries.module';
+import { UploadModule } from '@/modules/upload/upload.module';
+import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
   imports: [

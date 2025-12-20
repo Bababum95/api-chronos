@@ -1,11 +1,11 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { User, UserDocument } from '@/schemas/user.schema';
-import { File, FileDocument } from '@/schemas/file.schema';
 import { MAX_FILE_SIZE, ALLOWED_FILE_TYPES, API_PREFIX } from '@/config/constants';
+import { File, FileDocument } from '@/schemas/file.schema';
+import { User, UserDocument } from '@/schemas/user.schema';
 
 @Injectable()
 export class UploadService {

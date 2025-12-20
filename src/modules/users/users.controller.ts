@@ -1,11 +1,11 @@
 import { Controller, Get, Put, Body, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { AuthenticatedUser } from '@/common/types/authenticated-user';
-import { UpdateProfileSchema, ChangePasswordSchema } from '@/common/dto/validation-schemas';
-import { parseOrThrow } from '@/common/utils/validation.utils';
-import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { UpdateProfileSchema, ChangePasswordSchema } from '@/common/dto/validation-schemas';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
+import { AuthenticatedUser } from '@/common/types/authenticated-user';
+import { parseOrThrow } from '@/common/utils/validation.utils';
 
 import { UsersService } from './users.service';
 

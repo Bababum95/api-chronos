@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, FilterQuery } from 'mongoose';
 
-import { HourlyActivity, HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
+
 import { createSuccessResponse } from '@/common/types/api-response.type';
-import { formatDuration } from '@/common/utils/time.utils';
 import { bucketActivities } from '@/common/utils/bucket-activities.utils';
+import { formatDuration } from '@/common/utils/time.utils';
+import { HourlyActivity, HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
 
 import type { ActivitiesQueryDto } from './dto/activities-query.dto';
 
@@ -51,8 +52,9 @@ export class ActivitiesService {
     const BATCH_SIZE = 1000;
     let lastId: Types.ObjectId | null = null;
     let updatedCount = 0;
+    let hasMore = true;
 
-    while (true) {
+    while (hasMore) {
       const query: FilterQuery<HourlyActivityDocument> = { project: projectId };
       if (lastId) query._id = { $gt: lastId };
 
@@ -63,7 +65,10 @@ export class ActivitiesService {
         .select('_id')
         .lean<{ _id: Types.ObjectId }[]>();
 
-      if (batch.length === 0) break;
+      if (batch.length === 0) {
+        hasMore = false;
+        continue;
+      }
 
       const ids = batch.map((doc) => doc._id);
 

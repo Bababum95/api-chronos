@@ -1,12 +1,12 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { AuthenticatedUser } from '@/common/types/authenticated-user';
 
-import { SummariesService } from './summaries.service';
 import { GetSummariesRangeDto } from './dto/get-summaries-range.dto';
+import { SummariesService } from './summaries.service';
 
 @ApiTags('summaries')
 @ApiBearerAuth('bearer')

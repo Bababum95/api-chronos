@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { InjectConnection } from '@nestjs/mongoose';
+import { ApiTags } from '@nestjs/swagger';
 import { Connection } from 'mongoose';
 
 @ApiTags('ping')

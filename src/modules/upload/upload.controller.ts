@@ -11,8 +11,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { AuthenticatedUser } from '@/common/types/authenticated-user';
 
 import { UploadService } from './upload.service';

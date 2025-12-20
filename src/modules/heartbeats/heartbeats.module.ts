@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { Project, ProjectSchema } from '@/schemas/project.schema';
-import { User, UserSchema } from '@/schemas/user.schema';
 import { Heartbeat, HeartbeatSchema } from '@/schemas/heartbeat.schema';
 import { HourlyActivity, HourlyActivitySchema } from '@/schemas/hourly-activity.schema';
+import { Project, ProjectSchema } from '@/schemas/project.schema';
+import { User, UserSchema } from '@/schemas/user.schema';
 
-import { HeartbeatsService } from './heartbeats.service';
 import { HeartbeatsController } from './heartbeats.controller';
+import { HeartbeatsService } from './heartbeats.service';
 
 @Module({
   imports: [

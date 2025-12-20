@@ -7,9 +7,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { User, UserDocument } from '@/schemas/user.schema';
 import { UpdateProfileInput, ChangePasswordInput } from '@/common/dto/validation-schemas';
 import { createSuccessResponse, createErrorResponse } from '@/common/types/api-response.type';
+import { User, UserDocument } from '@/schemas/user.schema';
 
 @Injectable()
 export class UsersService {

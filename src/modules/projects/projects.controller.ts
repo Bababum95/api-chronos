@@ -17,10 +17,10 @@ import { AuthenticatedUser } from '@/common/types/authenticated-user';
 import { ActivitiesService } from '@/modules/activities/activities.service';
 import { ActivitiesQueryDto } from '@/modules/activities/dto/activities-query.dto';
 
-import { ProjectsService } from './services/projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
 import { FindAllProjectsQueryDto } from './dto/find-all-query.dto';
+import { UpdateProjectDto } from './dto/update-project.dto';
+import { ProjectsService } from './services/projects.service';
 
 @ApiTags('projects')
 @ApiBearerAuth('bearer')

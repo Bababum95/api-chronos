@@ -10,8 +10,8 @@ import { Model } from 'mongoose';
 import { z } from 'zod';
 
 import { User, UserDocument } from '../../schemas/user.schema';
-import { parseOrThrow } from '../utils/validation.utils';
 import { extractBasicApiKey } from '../utils/auth-header.utils';
+import { parseOrThrow } from '../utils/validation.utils';
 
 const ApiKeySchema = z.object({
   apiKey: z

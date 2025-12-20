@@ -1,9 +1,9 @@
-import helmet from 'helmet';
-import compression from 'compression';
-import morgan from 'morgan';
-import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
+import compression from 'compression';
+import helmet from 'helmet';
+import morgan from 'morgan';
 
 import { AppModule } from './app.module';
 import { API_PREFIX } from './config/constants';

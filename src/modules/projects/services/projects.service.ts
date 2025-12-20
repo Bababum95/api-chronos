@@ -2,12 +2,12 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, PipelineStage, Types } from 'mongoose';
 
-import { Project, ProjectDocument } from '@/schemas/project.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
 import { ActivitiesService } from '@/modules/activities/activities.service';
+import { Project, ProjectDocument } from '@/schemas/project.schema';
 
-import { FindAllProjectsQueryDto } from '../dto/find-all-query.dto';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { FindAllProjectsQueryDto } from '../dto/find-all-query.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 
 import { ProjectAggregationService } from './project-aggregation.service';

@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
+import { HeartbeatsInput } from '@/common/dto/validation-schemas';
 import { Heartbeat, HeartbeatDocument } from '@/schemas/heartbeat.schema';
 import { HourlyActivity, HourlyActivityModel } from '@/schemas/hourly-activity.schema';
 import { Project, ProjectDocument } from '@/schemas/project.schema';
-import { HeartbeatsInput } from '@/common/dto/validation-schemas';
 
 @Injectable()
 export class HeartbeatsService {

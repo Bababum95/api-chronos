@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { HourlyActivity, HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
 import { createSuccessResponse } from '@/common/types/api-response.type';
-import { formatDuration } from '@/common/utils/time.utils';
 import { bucketActivities } from '@/common/utils/bucket-activities.utils';
+import { formatDuration } from '@/common/utils/time.utils';
+import { HourlyActivity, HourlyActivityDocument } from '@/schemas/hourly-activity.schema';
 
-import { aggregateActivities } from './utils/aggregate-activities';
-import type { SummariesRangeResponse } from './types/summary-response.type';
-import type { Activity } from './types/activity.type';
 import type { GetSummariesRangeDto } from './dto/get-summaries-range.dto';
+import type { Activity } from './types/activity.type';
+import type { SummariesRangeResponse } from './types/summary-response.type';
+import { aggregateActivities } from './utils/aggregate-activities';
 
 @Injectable()
 export class SummariesService {

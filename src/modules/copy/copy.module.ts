@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { UserSchema } from '@/schemas/user.schema';
 import { FileSchema } from '@/schemas/file.schema';
 import { HeartbeatSchema } from '@/schemas/heartbeat.schema';
+import { UserSchema } from '@/schemas/user.schema';
 
 import { CopyService } from './copy.service';
 
