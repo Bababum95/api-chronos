@@ -6,12 +6,12 @@ import { createSuccessResponse } from '@/common/types/api-response.type';
 import { ActivitiesService } from '@/modules/activities/activities.service';
 import { Project, ProjectDocument } from '@/schemas/project.schema';
 
+import { ProjectAggregationService } from './project-aggregation.service';
+import { ProjectQueryBuilderService } from './project-query-builder.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { FindAllProjectsQueryDto } from '../dto/find-all-query.dto';
 import { UpdateProjectDto } from '../dto/update-project.dto';
 
-import { ProjectAggregationService } from './project-aggregation.service';
-import { ProjectQueryBuilderService } from './project-query-builder.service';
 
 @Injectable()
 export class ProjectsService {

@@ -2,10 +2,10 @@ import { Controller, Post, Body, HttpStatus, HttpException, HttpCode, Res } from
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
+import { AuthService } from './auth.service';
 import { SignUpSchema, SignInSchema } from '../../common/dto/validation-schemas';
 import { parseOrThrow } from '../../common/utils/validation.utils';
 
-import { AuthService } from './auth.service';
 
 @ApiTags('auth')
 @Controller('auth')
