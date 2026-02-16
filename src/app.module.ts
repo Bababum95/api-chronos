@@ -6,6 +6,7 @@ import { loadConfiguration } from '@/config/configuration';
 import { AuthModule } from '@/modules/auth/auth.module';
 import { CopyModule } from '@/modules/copy/copy.module';
 import { FilesModule } from '@/modules/files/files.module';
+import { HealthModule } from '@/modules/health/health.module';
 import { HeartbeatsModule } from '@/modules/heartbeats/heartbeats.module';
 import { PingModule } from '@/modules/ping/ping.module';
 import { ProjectsModule } from '@/modules/projects/projects.module';
@@ -41,6 +42,7 @@ import { UsersModule } from '@/modules/users/users.module';
     }),
 
     AuthModule,
+    HealthModule,
     UsersModule,
     HeartbeatsModule,
     SummariesModule,
